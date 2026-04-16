@@ -78,10 +78,11 @@ const LOGO = "https://cdn.abicart.com/shop/ws5/158805/files/design/whiskybud_log
     .wb3-sb::-webkit-scrollbar{width:2px}
     .wb3-sb::-webkit-scrollbar-thumb{background:${C.smoke};border-radius:2px}
     .wb3-sb::-webkit-scrollbar-track{background:transparent}
-    .wb3-range{-webkit-appearance:none;appearance:none;width:100%;height:3px;border-radius:0;outline:none;cursor:pointer;background:${C.barrel}}
-    .wb3-range::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:0;background:${C.copper};border:2px solid ${C.void};cursor:grab;transform:rotate(45deg);transition:transform .15s}
+    .wb3-range{-webkit-appearance:none;appearance:none;width:100%;height:24px;border-radius:0;outline:none;cursor:pointer;background:transparent;padding:0;margin:0}
+    .wb3-range::-webkit-slider-runnable-track{height:3px;background:${C.barrel};border:none;border-radius:0}
+    .wb3-range::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:0;background:${C.copper};border:2px solid ${C.void};cursor:grab;transform:rotate(45deg);transition:transform .15s;margin-top:-7.5px}
     .wb3-range::-webkit-slider-thumb:hover{transform:rotate(45deg) scale(1.15)}
-    .wb3-range::-moz-range-track{background:${C.barrel};height:3px;border:none;border-radius:0}
+    .wb3-range::-moz-range-track{height:3px;background:${C.barrel};border:none;border-radius:0}
     .wb3-range::-moz-range-thumb{width:18px;height:18px;border-radius:0;background:${C.copper};border:2px solid ${C.void};cursor:grab;transform:rotate(45deg);transition:transform .15s;box-sizing:border-box}
     .wb3-range::-moz-range-thumb:hover{transform:rotate(45deg) scale(1.15)}
   `;
