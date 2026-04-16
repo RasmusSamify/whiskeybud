@@ -235,7 +235,7 @@ export default function WhiskybudWidget() {
           fast med whisky.
         </p>
         {/* Info triptych — three pillars with diamond separators */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0, marginTop: 18, padding: "10px 0", borderTop: `1px solid ${C.barrel}`, borderBottom: `1px solid ${C.barrel}`, position: "relative" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0, marginTop: 18, padding: "14px 12px", background: `linear-gradient(90deg, ${C.oak}00, ${C.oak}, ${C.oak}00)`, borderTop: `1px solid ${C.char}`, borderBottom: `1px solid ${C.char}`, position: "relative" }}>
           {/* Animated corner accents */}
           <div style={{ position: "absolute", top: -1, left: 0, height: 1, background: C.copper, animation: "wb3-corner-draw 0.6s cubic-bezier(.22,1,.36,1) 0.3s both" }} />
           <div style={{ position: "absolute", bottom: -1, right: 0, height: 1, background: C.copper, animation: "wb3-corner-draw 0.6s cubic-bezier(.22,1,.36,1) 0.5s both" }} />
@@ -250,8 +250,8 @@ export default function WhiskybudWidget() {
                 <div style={{ width: 5, height: 5, background: C.rosegold, margin: "0 14px", flexShrink: 0, animation: `wb3-diamond-spin 0.3s ease ${0.6 + i * 0.15}s both` }} />
               )}
               <div style={{ textAlign: "center" }}>
-                <div style={{ ...mo(500), fontSize: 8, color: C.smoke, letterSpacing: "0.18em" }}>{item.label.toUpperCase()}</div>
-                <div style={{ ...fr(500), fontSize: 12, color: C.cream, marginTop: 1, letterSpacing: "0.01em" }}>{item.value}</div>
+                <div style={{ ...mo(600), fontSize: 9, color: C.copper, letterSpacing: "0.2em" }}>{item.label.toUpperCase()}</div>
+                <div style={{ ...fr(500), fontSize: 13, color: C.cream, marginTop: 3, letterSpacing: "0.01em" }}>{item.value}</div>
               </div>
             </div>
           ))}
