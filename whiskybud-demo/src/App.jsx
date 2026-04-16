@@ -78,9 +78,12 @@ const LOGO = "https://cdn.abicart.com/shop/ws5/158805/files/design/whiskybud_log
     .wb3-sb::-webkit-scrollbar{width:2px}
     .wb3-sb::-webkit-scrollbar-thumb{background:${C.smoke};border-radius:2px}
     .wb3-sb::-webkit-scrollbar-track{background:transparent}
-    .wb3-range{-webkit-appearance:none;width:100%;height:3px;border-radius:0;outline:none;cursor:pointer;background:${C.barrel}}
+    .wb3-range{-webkit-appearance:none;appearance:none;width:100%;height:3px;border-radius:0;outline:none;cursor:pointer;background:${C.barrel}}
     .wb3-range::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:0;background:${C.copper};border:2px solid ${C.void};cursor:grab;transform:rotate(45deg);transition:transform .15s}
     .wb3-range::-webkit-slider-thumb:hover{transform:rotate(45deg) scale(1.15)}
+    .wb3-range::-moz-range-track{background:${C.barrel};height:3px;border:none;border-radius:0}
+    .wb3-range::-moz-range-thumb{width:18px;height:18px;border-radius:0;background:${C.copper};border:2px solid ${C.void};cursor:grab;transform:rotate(45deg);transition:transform .15s;box-sizing:border-box}
+    .wb3-range::-moz-range-thumb:hover{transform:rotate(45deg) scale(1.15)}
   `;
   document.head.appendChild(s);
 })();
@@ -144,22 +147,29 @@ function Orbs() {
   </div>;
 }
 
-function Tilt({ children, onClick, style, className = "", delay = 0 }) {
+function Tilt({ children, onClick, style, className = "", delay = 0, disableTilt = false }) {
   const ref = useRef(null);
   const [t, setT] = useState({ x: 0, y: 0, on: false });
+  const [isTouch] = useState(() => typeof window !== "undefined" && (("ontouchstart" in window) || !window.matchMedia?.("(hover: hover)").matches));
+  const tiltOff = disableTilt || isTouch;
   const mv = useCallback(e => { if (!ref.current) return; const r = ref.current.getBoundingClientRect(); setT({ x: ((e.clientY - r.top) / r.height - 0.5) * -10, y: ((e.clientX - r.left) / r.width - 0.5) * 10, on: true }); }, []);
   const lv = useCallback(() => setT({ x: 0, y: 0, on: false }), []);
-  return <div ref={ref} className={className} onMouseMove={mv} onMouseLeave={lv} onClick={onClick}
-    style={{ ...style, cursor: onClick ? "pointer" : "default", transform: `perspective(500px) rotateX(${t.x}deg) rotateY(${t.y}deg)`, transition: t.on ? "transform .08s" : "transform .4s cubic-bezier(.22,1,.36,1)", animationDelay: `${delay}ms`, willChange: "transform" }}>
+  const handlers = tiltOff ? {} : { onMouseMove: mv, onMouseLeave: lv };
+  return <div ref={ref} className={className} {...handlers} onClick={onClick}
+    style={{ ...style, cursor: onClick ? "pointer" : "default", transform: tiltOff ? "none" : `perspective(500px) rotateX(${t.x}deg) rotateY(${t.y}deg)`, transition: t.on ? "transform .08s" : "transform .4s cubic-bezier(.22,1,.36,1)", animationDelay: `${delay}ms`, willChange: tiltOff ? "auto" : "transform" }}>
     {children}
-    {t.on && <div style={{ position: "absolute", inset: 0, borderRadius: "inherit", pointerEvents: "none", background: `radial-gradient(circle at ${(t.y/10+.5)*100}% ${(-t.x/10+.5)*100}%,rgba(212,129,46,0.1),transparent 50%)` }} />}
+    {t.on && !tiltOff && <div style={{ position: "absolute", inset: 0, borderRadius: "inherit", pointerEvents: "none", background: `radial-gradient(circle at ${(t.y/10+.5)*100}% ${(-t.x/10+.5)*100}%,rgba(212,129,46,0.1),transparent 50%)` }} />}
   </div>;
 }
 
-function AnimPrice({ v }) {
+function AnimPrice({ v, delay = 0 }) {
   const [d, setD] = useState(0);
   const n = parseInt(v.replace(/\D/g, "")) || 0;
-  useEffect(() => { const t0 = Date.now(); const tick = () => { const p = Math.min((Date.now() - t0) / 700, 1); setD(Math.round(n * (1 - Math.pow(1 - p, 3)))); if (p < 1) requestAnimationFrame(tick); }; requestAnimationFrame(tick); }, [n]);
+  useEffect(() => {
+    const start = () => { const t0 = Date.now(); const tick = () => { const p = Math.min((Date.now() - t0) / 700, 1); setD(Math.round(n * (1 - Math.pow(1 - p, 3)))); if (p < 1) requestAnimationFrame(tick); }; requestAnimationFrame(tick); };
+    if (delay > 0) { const id = setTimeout(start, delay); return () => clearTimeout(id); }
+    start();
+  }, [n, delay]);
   return <>{d.toLocaleString("sv-SE")}</>;
 }
 
@@ -245,6 +255,7 @@ export default function WhiskybudWidget() {
   const nav = useCallback(to => { setHist(h => [...h, scr]); setScr(to); }, [scr]);
   const back = useCallback(() => {
     if (scr === "guide" && gStep > 0) { setGStep(g => g - 1); return; }
+    if (scr === "guide" && gStep === 0) { setScr("home"); setHist([]); return; }
     setScr(hist[hist.length - 1] || "home"); setHist(h => h.slice(0, -1));
   }, [scr, hist, gStep]);
   const getRec = useCallback(() => {
@@ -255,9 +266,10 @@ export default function WhiskybudWidget() {
     if (body > 60) return RECS.rich;
     return RECS.gift;
   }, [taste]);
-  const send = useCallback(() => {
-    if (!inp.trim() || busy) return;
-    const m = inp.trim(); setMsgs(p => [...p, { r: "u", t: m }]); setInp(""); setBusy(true);
+  const sendMsg = useCallback(text => {
+    const m = (text || "").trim();
+    if (!m || busy) return;
+    setMsgs(p => [...p, { r: "u", t: m }]); setInp(""); setBusy(true);
     setTimeout(() => {
       const lo = m.toLowerCase(); let re;
       if (/födelsedag|present|gåva/.test(lo)) re = "**Födelsedagspaket** (996 kr) — bästsäljaren. Vill du ha mer exklusivt? **Nikka from the Barrel** (949 kr) imponerar alltid.";
@@ -269,7 +281,8 @@ export default function WhiskybudWidget() {
       else re = "Berätta mer — eller testa **Presentsguiden** och **Smakprofilen** i menyn för att hitta rätt match.";
       setMsgs(p => [...p, { r: "b", t: re }]); setBusy(false);
     }, 800 + Math.random() * 500);
-  }, [inp, busy]);
+  }, [busy]);
+  const send = useCallback(() => sendMsg(inp), [inp, sendMsg]);
 
   // ═══ HOME ═══
   const Home = () => (
@@ -476,6 +489,8 @@ export default function WhiskybudWidget() {
 
         {gStep === 1 && (
           <div className="wb3-cut">
+            <button onClick={() => setGStep(g => g - 1)}
+              style={{ ...mo(400), background: "none", border: "none", color: C.ash, fontSize: 10, cursor: "pointer", letterSpacing: "0.1em", marginBottom: 12, padding: 0 }}>← TILLBAKA</button>
             <div style={{ ...fr(900), fontSize: 30, color: C.cream, lineHeight: 1, marginBottom: 4 }}>Budget?</div>
             <div style={{ ...mo(400), fontSize: 10, color: C.ash, letterSpacing: "0.1em", marginBottom: 14, display: "inline-flex", alignItems: "center", gap: 6 }}><span style={{ color: C.copper, display: "inline-flex" }}><Icon name={occ?.id} size={12} stroke={1.6} /></span>{occ?.label?.toUpperCase()}</div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
@@ -501,6 +516,8 @@ export default function WhiskybudWidget() {
 
         {gStep === 2 && (
           <div className="wb3-cut">
+            <button onClick={() => setGStep(g => g - 1)}
+              style={{ ...mo(400), background: "none", border: "none", color: C.ash, fontSize: 10, cursor: "pointer", letterSpacing: "0.1em", marginBottom: 12, padding: 0 }}>← TILLBAKA</button>
             <div style={{ ...fr(900), fontSize: 30, color: C.cream, lineHeight: 1, marginBottom: 4 }}>Smak</div>
             <div style={{ ...mo(400), fontSize: 10, color: C.ash, letterSpacing: "0.1em", marginBottom: 18 }}>DRA REGLAGE</div>
             {TASTE_AXES.slice(0, 2).map(ax => (
@@ -512,7 +529,8 @@ export default function WhiskybudWidget() {
                 </div>
                 <div style={{ position: "relative" }}>
                   <div style={{ position: "absolute", left: 0, top: "50%", transform: "translateY(-50%)", height: 3, width: `${taste[ax.id]}%`, background: `linear-gradient(90deg, ${C.copper}, ${C.flame})`, pointerEvents: "none", transition: "width .1s" }} />
-                  <input type="range" className="wb3-range" min="0" max="100" value={taste[ax.id]} onChange={e => setTaste(t => ({ ...t, [ax.id]: +e.target.value }))} />
+                  <input type="range" className="wb3-range" min="0" max="100" value={taste[ax.id]} onChange={e => setTaste(t => ({ ...t, [ax.id]: +e.target.value }))}
+                    onMouseMove={e => e.stopPropagation()} onPointerMove={e => e.stopPropagation()} />
                 </div>
               </div>
             ))}
@@ -542,7 +560,7 @@ export default function WhiskybudWidget() {
               <div style={{ ...mo(700), fontSize: 9, letterSpacing: "0.2em", color: C.copper, marginBottom: 12 }}>REKOMMENDATION</div>
               <div style={{ ...mo(400), fontSize: 10, color: C.ash, fontStyle: "italic", marginBottom: 4 }}>{rec.region}</div>
               <div style={{ ...fr(900), fontSize: 34, color: C.cream, lineHeight: 1.1, marginBottom: 4 }}>{rec.name}</div>
-              <div style={{ ...mo(700), fontSize: 32, color: C.copper, margin: "10px 0" }}><AnimPrice v={rec.price} /> SEK</div>
+              <div style={{ ...mo(700), fontSize: 32, color: C.copper, margin: "10px 0" }}><AnimPrice v={rec.price} delay={500} /> SEK</div>
               <p style={{ ...sy(400), fontSize: 12, color: C.ash, lineHeight: 1.6, margin: "0 0 14px" }}>{rec.note}</p>
               <div style={{ display: "flex", justifyContent: "center", gap: 2, marginBottom: 16 }}>
                 {Array.from({ length: 5 }, (_, i) => <span key={i} style={{ fontSize: 14, color: i < Math.floor(rec.stars) ? C.amber : C.barrel }}>◆</span>)}
@@ -599,7 +617,8 @@ export default function WhiskybudWidget() {
               </div>
               <div style={{ position: "relative" }}>
                 <div style={{ position: "absolute", left: 0, top: "50%", transform: "translateY(-50%)", height: 3, width: `${taste[ax.id]}%`, background: `linear-gradient(90deg, ${C.copper}, ${C.flame})`, pointerEvents: "none", transition: "width .1s" }} />
-                <input type="range" className="wb3-range" min="0" max="100" value={taste[ax.id]} onChange={e => setTaste(t => ({ ...t, [ax.id]: +e.target.value }))} />
+                <input type="range" className="wb3-range" min="0" max="100" value={taste[ax.id]} onChange={e => setTaste(t => ({ ...t, [ax.id]: +e.target.value }))}
+                  onMouseMove={e => e.stopPropagation()} onPointerMove={e => e.stopPropagation()} />
               </div>
             </div>
           ))}
@@ -645,8 +664,9 @@ export default function WhiskybudWidget() {
           {busy && (
             <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
               <div style={{ width: 26, height: 26, borderRadius: 0, background: C.oak, border: `1px solid ${C.char}`, display: "flex", alignItems: "center", justifyContent: "center", ...mo(700), fontSize: 10, color: C.copper, transform: "rotate(45deg)" }}><span style={{ transform: "rotate(-45deg)" }}>W</span></div>
-              <div style={{ padding: "12px 16px", background: C.oak, border: `1px solid ${C.char}`, borderRadius: "2px 14px 14px 14px", display: "flex", gap: 5 }}>
+              <div style={{ padding: "12px 16px", background: C.oak, border: `1px solid ${C.char}`, borderRadius: "2px 14px 14px 14px", display: "flex", gap: 5, alignItems: "center" }}>
                 {[0, 1, 2].map(d => <div key={d} style={{ width: 5, height: 5, background: C.copper, transform: "rotate(45deg)", animation: `wb3-glow 1s ease ${d * 0.15}s infinite` }} />)}
+                <span style={{ ...mo(400), fontSize: 10, color: C.ash, marginLeft: 6 }}>Söker rätt whisky...</span>
               </div>
             </div>
           )}
@@ -654,7 +674,7 @@ export default function WhiskybudWidget() {
         </div>
         <div style={{ padding: "3px 14px 1px", display: "flex", gap: 5, overflowX: "auto" }}>
           {["Födelsedag", "Rökig", "Budget", "Japan"].map(q => (
-            <button key={q} onClick={() => setInp(q)}
+            <button key={q} onClick={() => sendMsg(q)}
               style={{ ...mo(500), padding: "4px 10px", border: `1px solid ${C.char}`, borderRadius: 0, background: "transparent", color: C.ash, fontSize: 10, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0, transition: "all .15s", letterSpacing: "0.05em" }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = C.copper; e.currentTarget.style.color = C.copper; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = C.char; e.currentTarget.style.color = C.ash; }}>
@@ -666,8 +686,8 @@ export default function WhiskybudWidget() {
           <input value={inp} onChange={e => setInp(e.target.value)} onKeyDown={e => e.key === "Enter" && send()} placeholder="Skriv till sommelieren..."
             style={{ flex: 1, padding: "10px 12px", borderRadius: 0, background: C.oak, border: `1px solid ${C.char}`, color: C.cream, ...sy(400), fontSize: 13, outline: "none", transition: "border-color .2s" }}
             onFocus={e => e.currentTarget.style.borderColor = C.copper} onBlur={e => e.currentTarget.style.borderColor = C.char} />
-          <button onClick={send}
-            style={{ width: 40, height: 40, borderRadius: 0, border: inp.trim() ? `2px solid ${C.copper}` : `1px solid ${C.char}`, background: inp.trim() ? C.copper : "transparent", cursor: inp.trim() ? "pointer" : "default", display: "flex", alignItems: "center", justifyContent: "center", transition: "all .2s" }}>
+          <button onClick={send} disabled={!inp.trim()}
+            style={{ width: 40, height: 40, borderRadius: 0, border: inp.trim() ? `2px solid ${C.copper}` : `1px solid ${C.char}`, background: inp.trim() ? C.copper : "transparent", cursor: inp.trim() ? "pointer" : "not-allowed", opacity: inp.trim() ? 1 : 0.5, display: "flex", alignItems: "center", justifyContent: "center", transition: "all .2s" }}>
             <span style={{ ...sy(700), fontSize: 16, color: inp.trim() ? C.void : C.smoke, transform: "rotate(-45deg)" }}>↑</span>
           </button>
         </div>
@@ -740,9 +760,9 @@ export default function WhiskybudWidget() {
               <span style={{ ...sy(600), fontSize: 13, color: C.cream }}>{f.q}</span>
               <span style={{ ...mo(300), fontSize: 18, color: C.copper, transition: "transform .3s", transform: faqI === i ? "rotate(45deg)" : "none" }}>+</span>
             </button>
-            {faqI === i && (
-              <div className="wb3-cut" style={{ padding: "10px 14px", background: C.oak, border: `1px solid ${C.char}`, borderTop: "none", borderRadius: "0 0 4px 4px", ...sy(400), fontSize: 12, color: C.ash, lineHeight: 1.6 }}>{f.a}</div>
-            )}
+            <div style={{ maxHeight: faqI === i ? 200 : 0, opacity: faqI === i ? 1 : 0, overflow: "hidden", transition: "max-height 0.3s ease, opacity 0.3s ease" }}>
+              <div style={{ padding: "10px 14px", background: C.oak, border: `1px solid ${C.char}`, borderTop: "none", borderRadius: "0 0 4px 4px", ...sy(400), fontSize: 12, color: C.ash, lineHeight: 1.6 }}>{f.a}</div>
+            </div>
           </div>
         ))}
       </div>
@@ -771,7 +791,7 @@ export default function WhiskybudWidget() {
           animation: "wb3-panel 0.35s cubic-bezier(.22,1,.36,1) both",
           transformOrigin: "bottom right", position: "relative",
         }}>
-          <Orbs />
+          <Orbs key="orbs" />
           {/* Header — deep cacao with burnished copper accent */}
           <div style={{
             padding: "13px 18px", display: "flex", alignItems: "center", gap: 10,
