@@ -168,6 +168,62 @@ function Slash({ color = C.copper, h = 2, my = 12 }) {
   return <div style={{ margin: `${my}px 0`, height: h, background: color, transformOrigin: "left", animation: "wb3-slash .5s cubic-bezier(.22,1,.36,1) both", clipPath: "polygon(0 0, 100% 40%, 100% 100%, 0 60%)" }} />;
 }
 
+// Monoline SVG icon set — inherits color via currentColor
+function Icon({ name, size = 24, stroke = 1.5 }) {
+  const p = { width: size, height: size, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: stroke, strokeLinecap: "round", strokeLinejoin: "round" };
+  switch (name) {
+    case "gift":
+      return <svg {...p}>
+        <rect x="3" y="10" width="18" height="11" />
+        <rect x="2" y="7" width="20" height="3.5" />
+        <line x1="12" y1="7" x2="12" y2="21" />
+        <path d="M12 7 C 9 2, 5 4, 7 7 Z" />
+        <path d="M12 7 C 15 2, 19 4, 17 7 Z" />
+      </svg>;
+    case "birthday":
+      return <svg {...p}>
+        <rect x="4" y="13" width="16" height="8" />
+        <path d="M4 16 Q 8 14.5 12 16 T 20 16" />
+        <line x1="12" y1="13" x2="12" y2="9" />
+        <circle cx="12" cy="7.5" r="1.5" fill="currentColor" stroke="none" />
+      </svg>;
+    case "thanks":
+      return <svg {...p}>
+        <path d="M5 20 Q 12 12 19 4" />
+        <path d="M7 17 C 9 15, 12 15, 13 17" />
+        <path d="M11 13 C 13 11, 16 11, 17 13" />
+        <path d="M15 9 C 17 7, 19 7, 20 9" />
+      </svg>;
+    case "enthusiast":
+      return <svg {...p}>
+        <circle cx="10" cy="10" r="6" />
+        <line x1="14.5" y1="14.5" x2="20" y2="20" />
+      </svg>;
+    case "luxury":
+      return <svg {...p}>
+        <path d="M3 18 L5 8 L9 13 L12 6 L15 13 L19 8 L21 18 Z" />
+        <line x1="4" y1="21" x2="20" y2="21" />
+      </svg>;
+    case "corporate":
+      return <svg {...p}>
+        <path d="M2 7 L12 3 L22 7" />
+        <line x1="3" y1="7" x2="21" y2="7" />
+        <line x1="6" y1="7" x2="6" y2="18" />
+        <line x1="10" y1="7" x2="10" y2="18" />
+        <line x1="14" y1="7" x2="14" y2="18" />
+        <line x1="18" y1="7" x2="18" y2="18" />
+        <line x1="3" y1="18" x2="21" y2="18" />
+        <line x1="2" y1="21" x2="22" y2="21" />
+      </svg>;
+    case "just":
+      return <svg {...p}>
+        <path d="M12 20 C 8 17, 4 14, 4 9.5 A 3.5 3.5 0 0 1 12 7 A 3.5 3.5 0 0 1 20 9.5 C 20 14, 16 17, 12 20 Z" />
+      </svg>;
+    default:
+      return null;
+  }
+}
+
 // ═══════════════════════════════
 // MAIN
 // ═══════════════════════════════
@@ -276,7 +332,7 @@ export default function WhiskybudWidget() {
           <div style={{ position: "absolute", top: -8, right: -4, ...fr(900), fontSize: 100, color: C.amber, opacity: 0.05, lineHeight: 1, pointerEvents: "none", animation: "wb3-breathe 6s ease-in-out infinite" }}>01</div>
           <div style={{ position: "relative", zIndex: 1 }}>
             <div style={{ ...mo(700), fontSize: 9, color: C.copper, letterSpacing: "0.2em", marginBottom: 10 }}>GUIDE</div>
-            <div style={{ fontSize: 32, marginBottom: 10 }}>🎁</div>
+            <div style={{ marginBottom: 10, color: C.copper, display: "inline-flex" }}><Icon name="gift" size={34} stroke={1.4} /></div>
             <div style={{ ...sy(700), fontSize: 16, color: C.cream, lineHeight: 1.2 }}>Present-<br/>guiden</div>
             <div style={{ ...mo(400), fontSize: 10, color: C.ash, marginTop: 8 }}>3 steg → rätt whisky</div>
             {/* Diagonal accent */}
@@ -409,7 +465,7 @@ export default function WhiskybudWidget() {
                     borderRadius: i % 3 === 0 ? "16px 4px" : i % 3 === 1 ? "4px 16px" : "4px", /* varied radius */
                     textAlign: "center",
                   }}>
-                  <div style={{ fontSize: 24, marginBottom: 6 }}>{o.icon}</div>
+                  <div style={{ marginBottom: 6, color: C.copper, display: "inline-flex" }}><Icon name={o.id} size={26} stroke={1.5} /></div>
                   <div style={{ ...sy(600), fontSize: 12, color: C.cream }}>{o.label}</div>
                   <div style={{ ...mo(400), fontSize: 9, color: C.ash, marginTop: 3 }}>{o.sub}</div>
                 </Tilt>
@@ -421,7 +477,7 @@ export default function WhiskybudWidget() {
         {gStep === 1 && (
           <div className="wb3-cut">
             <div style={{ ...fr(900), fontSize: 30, color: C.cream, lineHeight: 1, marginBottom: 4 }}>Budget?</div>
-            <div style={{ ...mo(400), fontSize: 10, color: C.ash, letterSpacing: "0.1em", marginBottom: 14 }}>{occ?.icon} {occ?.label?.toUpperCase()}</div>
+            <div style={{ ...mo(400), fontSize: 10, color: C.ash, letterSpacing: "0.1em", marginBottom: 14, display: "inline-flex", alignItems: "center", gap: 6 }}><span style={{ color: C.copper, display: "inline-flex" }}><Icon name={occ?.id} size={12} stroke={1.6} /></span>{occ?.label?.toUpperCase()}</div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
               {BUDGETS.map((b, i) => (
                 <Tilt key={b.id} className="wb3-up" delay={i * 50}
@@ -475,7 +531,7 @@ export default function WhiskybudWidget() {
 
         {gStep === 3 && (
           <div className="wb3-in" style={{ textAlign: "center" }}>
-            <div style={{ ...mo(400), fontSize: 9, color: C.ash, letterSpacing: "0.12em", marginBottom: 14 }}>{occ?.icon} {occ?.label?.toUpperCase()} · {bud?.label} SEK</div>
+            <div style={{ ...mo(400), fontSize: 9, color: C.ash, letterSpacing: "0.12em", marginBottom: 14, display: "inline-flex", alignItems: "center", gap: 6 }}><span style={{ color: C.copper, display: "inline-flex" }}><Icon name={occ?.id} size={11} stroke={1.6} /></span>{occ?.label?.toUpperCase()} · {bud?.label} SEK</div>
             <div style={{
               padding: "28px 20px 24px", position: "relative",
               background: C.oak, border: `1px solid ${C.copper}40`,
