@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="sv">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Whiskybud — AI-assistent Demo | Samify</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        font-family: system-ui, -apple-system, sans-serif;
+        background: #f5f2ed;
+        color: #333;
+        min-height: 100vh;
+      }
+      /* Simulate whiskybud.se look for demo context */
+      .demo-banner {
+        background: #E08C28;
+        color: #fff;
+        text-align: center;
+        padding: 10px 16px;
+        font-size: 13px;
+        letter-spacing: 0.02em;
+      }
+      .demo-header {
+        background: #fff;
+        border-bottom: 1px solid #e5e0d8;
+        padding: 16px 32px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .demo-header img { height: 36px; }
+      .demo-nav { display: flex; gap: 24px; }
+      .demo-nav a {
+        text-decoration: none; color: #555;
+        font-size: 13px; font-weight: 500;
+        letter-spacing: 0.03em;
+      }
+      .demo-body {
+        max-width: 900px;
+        margin: 48px auto;
+        padding: 0 24px;
+        text-align: center;
+      }
+      .demo-body h1 {
+        font-size: 28px; color: #333;
+        margin-bottom: 12px; font-weight: 400;
+      }
+      .demo-body p {
+        font-size: 15px; color: #777;
+        line-height: 1.6; max-width: 500px;
+        margin: 0 auto 32px;
+      }
+      .demo-badge {
+        display: inline-block;
+        background: #E08C28;
+        color: #fff;
+        padding: 8px 20px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+      }
+      .demo-note {
+        position: fixed; bottom: 24px; left: 24px;
+        background: #fff; border: 1px solid #e5e0d8;
+        border-radius: 8px; padding: 12px 16px;
+        font-size: 11px; color: #999;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+        z-index: 99998;
+        max-width: 220px;
+      }
+      .demo-note strong { color: #7c3aed; }
+    </style>
+  </head>
+  <body>
+    <div class="demo-banner">
+      Whisky direkt hem till dig eller din vän inom 2-3 dagar
+    </div>
+    <div class="demo-header">
+      <img src="https://cdn.abicart.com/shop/ws5/158805/files/design/whiskybud_logo.png?max-width=780&max-height=195&quality=85" alt="Whiskybud.se" />
+      <div class="demo-nav">
+        <a href="#">WHISKY</a>
+        <a href="#">TOPPLISTAN</a>
+        <a href="#">ÖVRIGT</a>
+        <a href="#">KAMPANJER</a>
+      </div>
+    </div>
+    <div class="demo-body">
+      <h1>Whiskybud.se</h1>
+      <p>
+        Detta är en demo av AI-assistenten för Whiskybud.se. 
+        Klicka på whiskyikonen i nedre högra hörnet för att öppna widgeten.
+      </p>
+      <span class="demo-badge">🥃 Testa widgeten →</span>
+    </div>
+    <div class="demo-note">
+      Demo av <strong>Samify</strong> AI-widget.
+      Inte kopplad till live-data.
+    </div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
