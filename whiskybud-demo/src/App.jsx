@@ -707,7 +707,7 @@ export default function WhiskybudWidget() {
     <div style={{ position: "fixed", bottom: 24, right: 24, zIndex: 99999, ...sy(400) }}>
       {open && show && (
         <div style={{
-          width: 390, height: 620, overflow: "hidden",
+          width: 440, height: 720, overflow: "hidden",
           background: C.void, border: `1px solid ${C.cognac}`,
           borderRadius: "6px 24px 6px 24px",
           boxShadow: `0 32px 80px rgba(0,0,0,0.75), 0 0 0 1px ${C.cognac}40, 0 0 60px ${C.copper}06`,
