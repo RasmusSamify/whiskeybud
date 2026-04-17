@@ -840,15 +840,24 @@ export default function WhiskybudWidget() {
         <button onClick={() => setOpen(!open)}
           style={{
             width: 58, height: 58, cursor: "pointer",
-            borderRadius: open ? "14px" : "6px 18px 6px 18px",
-            background: open ? C.barrel : `linear-gradient(135deg, ${C.copper}, ${C.ember})`,
-            border: `2px solid ${open ? C.smoke : C.flame}40`,
+            borderRadius: "6px 18px 6px 18px",
+            background: `linear-gradient(135deg, ${C.copper}, ${C.ember})`,
+            border: `2px solid ${C.flame}40`,
             display: "flex", alignItems: "center", justifyContent: "center",
             animation: open ? "none" : "wb3-pulse 2.5s ease-in-out infinite",
-            boxShadow: open ? "none" : `0 6px 28px ${C.copper}50`,
+            boxShadow: `0 6px 28px ${C.copper}${open ? "30" : "50"}`,
             transition: "all .35s cubic-bezier(.22,1,.36,1)",
           }}>
-          {open ? <span style={{ ...sy(300), fontSize: 24, color: C.cream }}>×</span> : <span style={{ fontSize: 24, lineHeight: 1 }}>🥃</span>}
+          {open ? (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={C.void} strokeWidth="2.5" strokeLinecap="round">
+              <line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/>
+            </svg>
+          ) : (
+            <svg width="26" height="26" viewBox="-20 -22 40 44" fill="none" stroke={C.void} strokeWidth="2.2" strokeLinejoin="round" strokeLinecap="round">
+              <path d="M-10,-18 C-12,-18 -14,-12 -14,-4 C-14,4 -8,10 -6,12 L-4,14 L-4,18 L-8,20 L8,20 L4,18 L4,14 L6,12 C8,10 14,4 14,-4 C14,-12 12,-18 10,-18 Z"/>
+              <path d="M-10,-6 C-6,-8 6,-8 10,-6 L8,4 C6,8 4,10 0,12 C-4,10 -6,8 -8,4 Z" fill={C.void} opacity="0.18"/>
+            </svg>
+          )}
         </button>
       </div>
     </div>
