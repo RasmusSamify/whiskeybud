@@ -285,8 +285,12 @@ export default function WhiskybudWidget() {
   }, [busy]);
   const send = useCallback(() => sendMsg(inp), [inp, sendMsg]);
 
+  const chatEndRef = useRef(null);
+  useEffect(() => { if (scr === "chat") chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs, busy, scr]);
+  const rec = getRec();
+
   // ═══ HOME ═══
-  const Home = () => (
+  const homeJSX = (
     <div style={{ padding: "0 16px 16px" }}>
       {/* Hero — editorial, asymmetric */}
       <div className="wb3-up" style={{ padding: "24px 4px 0", position: "relative" }}>
@@ -450,14 +454,12 @@ export default function WhiskybudWidget() {
   );
 
   // ═══ GUIDE ═══
-  const Guide = () => {
-    const rec = getRec();
-    const labels = ["TILLFÄLLE", "BUDGET", "SMAK", "MATCH"];
-    return (
+  const guideLabels = ["TILLFÄLLE", "BUDGET", "SMAK", "MATCH"];
+  const guideJSX = (
       <div style={{ padding: "0 16px 16px" }}>
         {/* Progress — monospace, industrial */}
         <div style={{ display: "flex", gap: 3, padding: "14px 0 18px" }}>
-          {labels.map((l, i) => (
+          {guideLabels.map((l, i) => (
             <div key={l} style={{ flex: 1 }}>
               <div style={{ height: 3, marginBottom: 5, background: i <= gStep ? C.copper : C.barrel, transition: "all .4s", clipPath: "polygon(0 0,100% 0,95% 100%,0 100%)" /* slanted bar */ }} />
               <div style={{ ...mo(i === gStep ? 700 : 400), fontSize: 8, color: i <= gStep ? C.copper : C.smoke, letterSpacing: "0.15em", textAlign: "center" }}>{l}</div>
@@ -579,13 +581,10 @@ export default function WhiskybudWidget() {
           </div>
         )}
       </div>
-    );
-  };
+  );
 
   // ═══ TASTE ═══
-  const Taste = () => {
-    const rec = getRec();
-    return (
+  const tasteJSX = (
       <div style={{ padding: "0 16px 16px" }}>
         <div className="wb3-up" style={{ padding: "18px 0" }}>
           <div style={{ ...fr(900), fontSize: 34, color: C.cream, lineHeight: 1 }}>Smak-</div>
@@ -640,14 +639,10 @@ export default function WhiskybudWidget() {
           </div>
         </div>
       </div>
-    );
-  };
+  );
 
   // ═══ CHAT ═══
-  const Chat = () => {
-    const endRef = useRef(null);
-    useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs, busy]);
-    return (
+  const chatJSX = (
       <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
         <div className="wb3-sb" style={{ flex: 1, overflowY: "auto", padding: "10px 14px 6px" }}>
           {msgs.map((m, i) => (
@@ -671,7 +666,7 @@ export default function WhiskybudWidget() {
               </div>
             </div>
           )}
-          <div ref={endRef} />
+          <div ref={chatEndRef} />
         </div>
         <div style={{ padding: "3px 14px 1px", display: "flex", gap: 5, overflowX: "auto" }}>
           {["Födelsedag", "Rökig", "Budget", "Japan"].map(q => (
@@ -693,11 +688,10 @@ export default function WhiskybudWidget() {
           </button>
         </div>
       </div>
-    );
-  };
+  );
 
   // ═══ TOP ═══
-  const Top = () => (
+  const topJSX = (
     <div style={{ padding: "0 16px 16px" }}>
       <div className="wb3-up" style={{ padding: "18px 0" }}>
         <div style={{ ...fr(900), fontSize: 34, color: C.cream, lineHeight: 1 }}>Topp-</div>
@@ -734,7 +728,7 @@ export default function WhiskybudWidget() {
   );
 
   // ═══ FAQ ═══
-  const Faq = () => (
+  const faqJSX = (
     <div style={{ padding: "0 16px 16px" }}>
       <div className="wb3-up" style={{ padding: "18px 0" }}>
         <div style={{ ...fr(900), fontSize: 34, color: C.cream, lineHeight: 1 }}>FAQ &</div>
@@ -778,7 +772,7 @@ export default function WhiskybudWidget() {
 
   // ═══ SHELL ═══
   const titles = { guide: "GUIDE", taste: "SMAK", chat: "SOMMELIER", top: "TOPP", faq: "FAQ" };
-  const S = { guide: <Guide />, taste: <Taste />, chat: <Chat />, top: <Top />, faq: <Faq /> };
+  const S = { guide: guideJSX, taste: tasteJSX, chat: chatJSX, top: topJSX, faq: faqJSX };
 
   return (
     <div style={{ position: "fixed", bottom: 24, right: 24, zIndex: 99999, ...sy(400) }}>
@@ -825,7 +819,7 @@ export default function WhiskybudWidget() {
           </div>
           {/* Body */}
           <div className="wb3-sb" style={{ flex: 1, overflowY: scr === "chat" ? "hidden" : "auto", position: "relative", zIndex: 1 }}>
-            {S[scr] || <Home />}
+            {S[scr] || homeJSX}
           </div>
           {/* Footer — roasted espresso, distinct from header */}
           <div style={{
